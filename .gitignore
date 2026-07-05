@@ -1,0 +1,39 @@
+# Monorepo Root gitignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node Modules and Build outputs
+node_modules/
+dist/
+dist-ssr/
+build/
+.gradle/
+DerivedData/
+*.jsbundle
+
+# Environment and Local Configs
+.env
+.env.local
+.env.*.local
+local.properties
+.xcode.env.local
+
+# IDEs and Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# CocoaPods
+**/Pods/
+/vendor/bundle/

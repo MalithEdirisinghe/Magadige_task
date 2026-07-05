@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "725250757631",
+    "project_id": "magadige-1fce9",
+    "storage_bucket": "magadige-1fce9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725250757631:android:d79e3a8c5cece6958b8dca",
+        "android_client_info": {
+          "package_name": "com.magadige"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "725250757631-6gba1i2qmjd0179gn4c4md3gffphanma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcf_A6J3liJyGr3uYJtMDZjBu0MeGAZnI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "725250757631-6gba1i2qmjd0179gn4c4md3gffphanma.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
