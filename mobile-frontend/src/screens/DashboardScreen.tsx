@@ -186,7 +186,7 @@ export default function DashboardScreen() {
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="light-content" backgroundColor="#0f0e2a" />
       <KeyboardAvoidingView
         style={{flex: 1}}
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   statsCount: {fontSize: 13, color: '#64748b'},
   progressBar: {height: 4, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 20, borderRadius: 2, marginBottom: 12},
   progressFill: {height: 4, backgroundColor: '#6366f1', borderRadius: 2},
-  list: {paddingHorizontal: 16, paddingTop: 8, paddingBottom: 180},
+  list: {paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24},
   emptyState: {alignItems: 'center', paddingTop: 80},
   emptyIcon: {fontSize: 48, marginBottom: 12},
   emptyText: {color: '#64748b', fontSize: 16, fontWeight: '600'},
@@ -385,13 +385,9 @@ const styles = StyleSheet.create({
   subTitle: {flex: 1, color: '#94a3b8', fontSize: 14},
   subTitleDone: {textDecorationLine: 'line-through', color: '#334155'},
   inputArea: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: 16,
-    paddingBottom: 32,
-    backgroundColor: 'rgba(15,14,42,0.95)',
+    paddingBottom: 16,
+    backgroundColor: '#0f0e2a',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.08)',
   },
