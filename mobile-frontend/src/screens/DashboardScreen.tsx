@@ -11,6 +11,8 @@ import {
   Animated,
   PanResponder,
   StatusBar,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../contexts/AuthContext';
@@ -186,6 +188,9 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0f0e2a" />
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
 
       {/* Navbar */}
       <View style={styles.navbar}>
@@ -274,6 +279,7 @@ export default function DashboardScreen() {
           )}
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
