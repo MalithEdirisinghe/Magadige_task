@@ -12,6 +12,7 @@ import {
   PanResponder,
   StatusBar,
 } from 'react-native';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../contexts/AuthContext';
 import {subscribeToTasks, addTask, toggleTask, deleteTask, updateSubTasks, type Task} from '../services/tasks';
 import {breakdownTask, type SubTask} from '../services/gemini';
@@ -183,7 +184,7 @@ export default function DashboardScreen() {
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0f0e2a" />
 
       {/* Navbar */}
@@ -273,7 +274,7 @@ export default function DashboardScreen() {
           )}
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

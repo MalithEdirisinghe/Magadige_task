@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {useAuth} from '../contexts/AuthContext';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -57,10 +58,11 @@ export default function RegisterScreen({navigation}: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+    <SafeAreaView style={{flex: 1, backgroundColor: '#0f0e2a'}} edges={['top', 'bottom']}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.brand}>
           <View style={styles.logoBox}>
             <Text style={styles.logoIcon}>✦</Text>
@@ -131,8 +133,9 @@ export default function RegisterScreen({navigation}: Props) {
             </Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
