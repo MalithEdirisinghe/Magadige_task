@@ -2,7 +2,7 @@
 // https://aistudio.google.com/app/apikey
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "YOUR_GEMINI_API_KEY";
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -13,7 +13,7 @@ export interface SubTask {
 }
 
 export async function breakdownTask(taskTitle: string): Promise<SubTask[]> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `You are a productivity assistant. Break down the following task into exactly 3-4 clear, actionable sub-tasks.
 

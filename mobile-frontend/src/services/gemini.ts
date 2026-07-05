@@ -1,7 +1,6 @@
-// 🔧 PLACEHOLDER — Replace YOUR_GEMINI_API_KEY with your actual key from:
-// https://aistudio.google.com/app/apikey
+import { GEMINI_API_KEY as KEY_FROM_ENV } from '../config/env';
 
-const GEMINI_API_KEY = 'YOUR_GEMINI_API_KEY';
+const GEMINI_API_KEY = KEY_FROM_ENV || 'YOUR_GEMINI_API_KEY';
 
 export interface SubTask {
   id: string;
@@ -10,7 +9,7 @@ export interface SubTask {
 }
 
 export async function breakdownTask(taskTitle: string): Promise<SubTask[]> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
   const prompt = `You are a productivity assistant. Break down the following task into exactly 3-4 clear, actionable sub-tasks.
 

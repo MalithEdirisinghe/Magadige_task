@@ -37,3 +37,7 @@ local.properties
 # CocoaPods
 **/Pods/
 /vendor/bundle/
+
+# Local Environment Keys
+web-frontend/.env
+mobile-frontend/src/config/env.ts

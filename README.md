@@ -37,7 +37,7 @@ magadige-smart-taskmanager/
 ```bash
 cd web-frontend
 # 1. Set your Firebase config in src/config/firebase.ts
-# 2. Set your Gemini API key in src/services/gemini.ts
+# 2. Create web-frontend/.env and add VITE_GEMINI_API_KEY=YOUR_KEY
 npm run dev
 # Open http://localhost:5173
 ```
@@ -48,7 +48,7 @@ npm run dev
 cd mobile-frontend
 # 1. Set your Firebase config in src/config/firebase.ts
 # 2. Set GOOGLE_WEB_CLIENT_ID in src/config/firebase.ts
-# 3. Set your Gemini API key in src/services/gemini.ts
+# 3. Create mobile-frontend/src/config/env.ts (from env.example.ts) and add your key
 # 4. Add google-services.json to android/app/
 npm install
 npx react-native run-android
@@ -67,7 +67,9 @@ npx react-native run-android
 
 ### Gemini API Key
 1. Get a free API key at https://aistudio.google.com/app/apikey
-2. Replace `YOUR_GEMINI_API_KEY` in both `src/services/gemini.ts` files
+2. Configure the keys in local config files (they are ignored by Git):
+   - **Web App:** Create `web-frontend/.env` file and define `VITE_GEMINI_API_KEY=your_key_here`
+   - **Mobile App:** Create `mobile-frontend/src/config/env.ts` (using `env.example.ts` as a template) and define `export const GEMINI_API_KEY = 'your_key_here';`
 
 ### Firestore Security Rules
 ```

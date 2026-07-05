@@ -186,11 +186,11 @@ export default function DashboardScreen() {
   const completedCount = tasks.filter(t => t.completed).length;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f0e2a" />
-      <KeyboardAvoidingView
-        style={{flex: 1}}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView
+      style={{flex: 1, backgroundColor: '#0f0e2a'}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+        <StatusBar barStyle="light-content" backgroundColor="#0f0e2a" />
 
       {/* Navbar */}
       <View style={styles.navbar}>
@@ -279,8 +279,8 @@ export default function DashboardScreen() {
           )}
         </TouchableOpacity>
       </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
