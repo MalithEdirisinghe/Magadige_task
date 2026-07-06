@@ -17,6 +17,8 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import LogoImage from '../assets/logo.png';
 import GoogleLogo from '../assets/google_logo.png';
+import EyeIcon from '../assets/eye.png';
+import EyeOffIcon from '../assets/eye_off.png';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -28,6 +30,8 @@ export default function RegisterScreen({navigation}: Props) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleRegister = async () => {
     if (!email || !password || !confirm) {
@@ -85,24 +89,34 @@ export default function RegisterScreen({navigation}: Props) {
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            testID="register-password"
-            style={styles.input}
-            placeholder="Password (min 6 characters)"
-            placeholderTextColor="#64748b"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TextInput
-            testID="register-confirm"
-            style={styles.input}
-            placeholder="Confirm password"
-            placeholderTextColor="#64748b"
-            secureTextEntry
-            value={confirm}
-            onChangeText={setConfirm}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              testID="register-password"
+              style={styles.input}
+              placeholder="Password (min 6 characters)"
+              placeholderTextColor="#64748b"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+              <Image source={showPassword ? EyeOffIcon : EyeIcon} style={styles.eyeIconImage} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              testID="register-confirm"
+              style={styles.input}
+              placeholder="Confirm password"
+              placeholderTextColor="#64748b"
+              secureTextEntry={!showConfirmPassword}
+              value={confirm}
+              onChangeText={setConfirm}
+            />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={styles.eyeBtn}>
+              <Image source={showConfirmPassword ? EyeOffIcon : EyeIcon} style={styles.eyeIconImage} />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             testID="register-submit"
@@ -160,16 +174,33 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   heading: {fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20},
+  inputContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
   input: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 14,
-    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 60,
     paddingVertical: 14,
     color: '#fff',
     fontSize: 15,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     marginBottom: 12,
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: 16,
+    height: '100%',
+    justifyContent: 'center',
+  },
+  eyeIconImage: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+    opacity: 0.6,
   },
   btnPrimary: {
     backgroundColor: '#6366f1',

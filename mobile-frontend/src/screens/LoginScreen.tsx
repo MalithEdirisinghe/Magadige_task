@@ -17,6 +17,8 @@ import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import LogoImage from '../assets/logo.png';
 import GoogleLogo from '../assets/google_logo.png';
+import EyeIcon from '../assets/eye.png';
+import EyeOffIcon from '../assets/eye_off.png';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -27,6 +29,7 @@ export default function LoginScreen({navigation}: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
@@ -90,15 +93,20 @@ export default function LoginScreen({navigation}: Props) {
             value={email}
             onChangeText={setEmail}
           />
-          <TextInput
-            testID="login-password"
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor="#64748b"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              testID="login-password"
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#64748b"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
+              <Image source={showPassword ? EyeOffIcon : EyeIcon} style={styles.eyeIconImage} />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotBtn}>
             <Text style={styles.forgotText}>Forgot password?</Text>
@@ -166,16 +174,33 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
   },
   heading: {fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 20},
+  inputContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
   input: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 14,
-    paddingHorizontal: 16,
+    paddingLeft: 16,
+    paddingRight: 60,
     paddingVertical: 14,
     color: '#fff',
     fontSize: 15,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     marginBottom: 12,
+  },
+  eyeBtn: {
+    position: 'absolute',
+    right: 16,
+    height: '100%',
+    justifyContent: 'center',
+  },
+  eyeIconImage: {
+    width: 22,
+    height: 22,
+    resizeMode: 'contain',
+    opacity: 0.6,
   },
   forgotBtn: {
     alignSelf: 'flex-end',
