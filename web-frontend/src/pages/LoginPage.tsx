@@ -6,11 +6,24 @@ import { LogIn, Mail, Lock } from "lucide-react";
 import logoImg from "../assets/logo.png";
 
 export default function LoginPage() {
-  const { loginWithEmail, loginWithGoogle } = useAuth();
+  const { loginWithEmail, loginWithGoogle, resetPassword } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      return toast.error("Please enter your email address first.");
+    }
+    const toastId = toast.loading("Sending password reset email...");
+    try {
+      await resetPassword(email.trim());
+      toast.success("Password reset email sent! Please check your inbox.", { id: toastId });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to send reset link", { id: toastId });
+    }
+  };
 
   const handleEmail = async (e: FormEvent) => {
     e.preventDefault();
@@ -83,6 +96,16 @@ export default function LoginPage() {
                 required
                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
               />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition"
+              >
+                Forgot password?
+              </button>
             </div>
 
             <button

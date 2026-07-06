@@ -23,10 +23,22 @@ type Props = {
 };
 
 export default function LoginScreen({navigation}: Props) {
-  const {loginWithEmail, loginWithGoogle} = useAuth();
+  const {loginWithEmail, loginWithGoogle, resetPassword} = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      return Alert.alert('Error', 'Please enter your email address first.');
+    }
+    try {
+      await resetPassword(email.trim());
+      Alert.alert('Success', 'Password reset email sent! Please check your inbox.');
+    } catch (err: unknown) {
+      Alert.alert('Error', err instanceof Error ? err.message : 'Failed to send reset link');
+    }
+  };
 
   const handleEmail = async () => {
     if (!email || !password) {return Alert.alert('Error', 'Please fill in all fields');}
@@ -87,6 +99,10 @@ export default function LoginScreen({navigation}: Props) {
             value={password}
             onChangeText={setPassword}
           />
+
+          <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotBtn}>
+            <Text style={styles.forgotText}>Forgot password?</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             testID="login-submit"
@@ -160,6 +176,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     marginBottom: 12,
+  },
+  forgotBtn: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+    marginTop: -4,
+  },
+  forgotText: {
+    color: '#818cf8',
+    fontSize: 13,
+    fontWeight: '600',
   },
   btnPrimary: {
     backgroundColor: '#6366f1',

@@ -10,6 +10,7 @@ interface AuthContextType {
   registerWithEmail: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -63,9 +64,13 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    await auth().sendPasswordResetEmail(email);
+  };
+
   return (
     <AuthContext.Provider
-      value={{user, loading, loginWithEmail, registerWithEmail, loginWithGoogle, logout}}>
+      value={{user, loading, loginWithEmail, registerWithEmail, loginWithGoogle, logout, resetPassword}}>
       {children}
     </AuthContext.Provider>
   );
