@@ -13,9 +13,11 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../contexts/AuthContext';
+import LogoImage from '../assets/logo.png';
 import {subscribeToTasks, addTask, toggleTask, deleteTask, updateSubTasks, type Task} from '../services/tasks';
 import {breakdownTask, type SubTask} from '../services/gemini';
 
@@ -195,7 +197,7 @@ export default function DashboardScreen() {
       {/* Navbar */}
       <View style={styles.navbar}>
         <View style={styles.navBrand}>
-          <View style={styles.navLogo}><Text style={styles.navLogoIcon}>✦</Text></View>
+          <Image source={LogoImage} style={styles.navLogoImage} />
           <Text style={styles.navTitle}>Magadige</Text>
         </View>
         <TouchableOpacity testID="logout-btn" onPress={logout} style={styles.logoutBtn}>
@@ -297,15 +299,11 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   navBrand: {flexDirection: 'row', alignItems: 'center', gap: 8},
-  navLogo: {
+  navLogoImage: {
     width: 32,
     height: 32,
-    borderRadius: 10,
-    backgroundColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 8,
   },
-  navLogoIcon: {fontSize: 14, color: '#fff'},
   navTitle: {fontSize: 18, fontWeight: '700', color: '#fff'},
   logoutBtn: {paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.07)'},
   logoutText: {color: '#94a3b8', fontSize: 13},

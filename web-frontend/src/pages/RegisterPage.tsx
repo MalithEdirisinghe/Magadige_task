@@ -2,7 +2,8 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { UserPlus, Mail, Lock, Sparkles } from "lucide-react";
+import { UserPlus, Mail, Lock } from "lucide-react";
+import logoImg from "../assets/logo.png";
 
 export default function RegisterPage() {
   const { registerWithEmail, loginWithGoogle } = useAuth();
@@ -48,10 +49,8 @@ export default function RegisterPage() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/40">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+          <div className="inline-flex items-center gap-3 mb-3">
+            <img src={logoImg} alt="MagaDige Logo" className="w-10 h-10 rounded-xl object-cover shadow-lg shadow-indigo-500/20" />
             <span className="text-2xl font-bold text-white tracking-tight">Magadige</span>
           </div>
           <p className="text-slate-400 text-sm">Smart Task Manager</p>

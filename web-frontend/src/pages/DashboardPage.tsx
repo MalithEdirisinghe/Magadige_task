@@ -6,6 +6,7 @@ import {
   Plus, Sparkles, LogOut, CheckCircle2, Circle, Trash2,
   ChevronDown, ChevronUp, Loader2, Brain, ListTodo,
 } from "lucide-react";
+import logoImg from "../assets/logo.png";
 import {
   subscribeToTasks, addTask, toggleTask, deleteTask, updateSubTasks,
   type Task,
@@ -95,10 +96,8 @@ export default function DashboardPage() {
       {/* Navbar */}
       <nav className="relative border-b border-white/10 backdrop-blur-xl bg-white/5">
         <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+          <div className="flex items-center gap-3">
+            <img src={logoImg} alt="MagaDige Logo" className="w-8 h-8 rounded-lg object-cover" />
             <span className="font-bold text-white">Magadige</span>
           </div>
           <div className="flex items-center gap-3">

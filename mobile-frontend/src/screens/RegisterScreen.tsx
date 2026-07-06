@@ -10,10 +10,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
 import {useAuth} from '../contexts/AuthContext';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import LogoImage from '../assets/logo.png';
+import GoogleLogo from '../assets/google_logo.png';
 
 type Props = {
   navigation: NativeStackNavigationProp<any>;
@@ -64,9 +67,7 @@ export default function RegisterScreen({navigation}: Props) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.brand}>
-          <View style={styles.logoBox}>
-            <Text style={styles.logoIcon}>✦</Text>
-          </View>
+          <Image source={LogoImage} style={styles.logoImage} />
           <Text style={styles.brandName}>Magadige</Text>
           <Text style={styles.brandSub}>Smart Task Manager</Text>
         </View>
@@ -122,7 +123,7 @@ export default function RegisterScreen({navigation}: Props) {
           </View>
 
           <TouchableOpacity style={styles.btnGoogle} onPress={handleGoogle} disabled={loading}>
-            <Text style={styles.googleG}>G</Text>
+            <Image source={GoogleLogo} style={styles.googleIcon} />
             <Text style={styles.btnGoogleText}>Sign up with Google</Text>
           </TouchableOpacity>
 
@@ -143,21 +144,12 @@ const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#0f0e2a'},
   scroll: {flexGrow: 1, justifyContent: 'center', padding: 24},
   brand: {alignItems: 'center', marginBottom: 32},
-  logoBox: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: '#6366f1',
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     marginBottom: 12,
-    shadowColor: '#6366f1',
-    shadowOffset: {width: 0, height: 8},
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 12,
   },
-  logoIcon: {fontSize: 24, color: '#fff'},
   brandName: {fontSize: 26, fontWeight: '800', color: '#fff', letterSpacing: -0.5},
   brandSub: {fontSize: 13, color: '#64748b', marginTop: 2},
   card: {
@@ -207,7 +199,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.1)',
     gap: 10,
   },
-  googleG: {fontSize: 17, fontWeight: '800', color: '#4285F4'},
+  googleIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+  },
   btnGoogleText: {color: '#fff', fontWeight: '500', fontSize: 15},
   switchText: {textAlign: 'center', color: '#64748b', fontSize: 13, marginTop: 20},
   switchLink: {color: '#818cf8', fontWeight: '600'},
