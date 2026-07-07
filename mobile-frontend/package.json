@@ -21,7 +21,8 @@
     "react-native": "0.86.0",
     "react-native-haptic-feedback": "^3.0.0",
     "react-native-safe-area-context": "^5.8.0",
-    "react-native-screens": "^4.25.2"
+    "react-native-screens": "^4.25.2",
+    "react-native-sound-player": "^0.14.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Plus, Sparkles, LogOut, CheckCircle2, Circle, Trash2,
-  ChevronDown, ChevronUp, Loader2, Brain, ListTodo,
+  ChevronDown, ChevronUp, Loader2, Brain, ListTodo, Play,
 } from "lucide-react";
 import logoImg from "../assets/logo.png";
 import {
@@ -21,6 +21,71 @@ export default function DashboardPage() {
   const [adding, setAdding] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  // Pomodoro Focus states
+  const [focusTask, setFocusTask] = useState<Task | null>(null);
+  const [focusSeconds, setFocusSeconds] = useState(1500);
+  const [isFocusRunning, setIsFocusRunning] = useState(false);
+
+  const playWebSound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+      osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.15);
+      
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.4);
+    } catch (err) {
+      console.error("Audio playback error", err);
+    }
+  };
+
+  useEffect(() => {
+    let interval: any = null;
+    if (focusTask && isFocusRunning && focusSeconds > 0) {
+      interval = setInterval(() => {
+        setFocusSeconds((prev) => prev - 1);
+      }, 1000);
+    } else if (focusSeconds === 0 && focusTask) {
+      playWebSound();
+      toast.success(`Focus session completed for "${focusTask.title}"! Take a 5-minute break.`, { duration: 6000 });
+      setFocusTask(null);
+      setIsFocusRunning(false);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [focusTask, isFocusRunning, focusSeconds]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, "0");
+    const s = (secs % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
+  const startFocus = (task: Task) => {
+    const val = window.prompt("Enter focus duration in minutes (e.g. 15, 25, 45, 60):", "25");
+    if (val === null) return; // Cancelled
+    const mins = parseInt(val, 10);
+    if (isNaN(mins) || mins <= 0) {
+      toast.error("Please enter a valid positive number.");
+      return;
+    }
+    setFocusTask(task);
+    setFocusSeconds(mins * 60);
+    setIsFocusRunning(true);
+    toast.success(`Focus timer started for: ${task.title} (${mins} min)`);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -118,6 +183,43 @@ export default function DashboardPage() {
           </div>
         </div>
       </nav>
+
+      {/* Focus Timer Banner */}
+      {focusTask && (
+        <div className="sticky top-0 z-50 w-full bg-gradient-to-r from-indigo-900/95 via-violet-950/95 to-indigo-900/95 border-b border-indigo-500/30 backdrop-blur-md px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-xl shadow-indigo-950/20 transition-all duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+            <span className="text-xs sm:text-sm text-indigo-200">Focusing on:</span>
+            <span className="font-semibold text-sm sm:text-base truncate max-w-[200px] sm:max-w-[300px]">
+              {focusTask.title}
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-xl sm:text-2xl font-bold tracking-widest text-indigo-300">
+              {formatTime(focusSeconds)}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setIsFocusRunning(!isFocusRunning)}
+                className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold transition"
+              >
+                {isFocusRunning ? "Pause" : "Resume"}
+              </button>
+              <button
+                onClick={() => {
+                  if (window.confirm("Stop focus session? Your progress will be reset.")) {
+                    setFocusTask(null);
+                    setIsFocusRunning(false);
+                  }
+                }}
+                className="px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/40 text-xs font-semibold text-red-300 transition"
+              >
+                Stop
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="relative max-w-4xl mx-auto px-4 py-8">
         {/* Header Stats */}
@@ -242,6 +344,14 @@ export default function DashboardPage() {
                         {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                     )}
+
+                    <button
+                      onClick={() => startFocus(task)}
+                      className="shrink-0 text-slate-500 hover:text-indigo-400 hover:bg-white/5 p-1.5 rounded-lg transition"
+                      title="Start Focus Session (25 min)"
+                    >
+                      <Play className="w-4 h-4" />
+                    </button>
 
                     <button
                       id={`delete-task-${task.id}`}

@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  Modal,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useAuth} from '../contexts/AuthContext';
@@ -21,17 +22,20 @@ import LogoImage from '../assets/logo.png';
 import {subscribeToTasks, addTask, toggleTask, deleteTask, updateSubTasks, type Task} from '../services/tasks';
 import {breakdownTask, type SubTask} from '../services/gemini';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import SoundPlayer from 'react-native-sound-player';
 
 function SwipeableTaskCard({
   task,
   onToggle,
   onDelete,
   onToggleSubTask,
+  onStartFocus,
 }: {
   task: Task;
   onToggle: () => void;
   onDelete: () => void;
   onToggleSubTask: (idx: number) => void;
+  onStartFocus: () => void;
 }) {
   const translateX = useRef(new Animated.Value(0)).current;
   const [expanded, setExpanded] = useState(false);
@@ -124,6 +128,12 @@ function SwipeableTaskCard({
             {task.title}
           </Text>
 
+          {!task.completed && (
+            <TouchableOpacity onPress={onStartFocus} style={styles.focusBtn}>
+              <Text style={styles.focusBtnText}>Focus</Text>
+            </TouchableOpacity>
+          )}
+
           {hasSubTasks && (
             <View style={styles.subBadge}>
               <Text style={styles.subBadgeText}>{subDone}/{task.subTasks.length}</Text>
@@ -166,6 +176,59 @@ export default function DashboardScreen() {
   const [newTitle, setNewTitle] = useState('');
   const [adding, setAdding] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+
+  // Pomodoro Focus states
+  const [focusTask, setFocusTask] = useState<Task | null>(null);
+  const [focusSeconds, setFocusSeconds] = useState(1500);
+  const [isFocusRunning, setIsFocusRunning] = useState(false);
+
+  // Custom Focus Modal states
+  const [customFocusModalVisible, setCustomFocusModalVisible] = useState(false);
+  const [customMins, setCustomMins] = useState('25');
+  const [selectedTaskForCustomFocus, setSelectedTaskForCustomFocus] = useState<Task | null>(null);
+
+  useEffect(() => {
+    let interval: any = null;
+    if (focusTask && isFocusRunning && focusSeconds > 0) {
+      interval = setInterval(() => {
+        setFocusSeconds(prev => prev - 1);
+      }, 1000);
+    } else if (focusSeconds === 0 && focusTask) {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false,
+      });
+      try {
+        SoundPlayer.playSoundFile('beep', 'wav');
+      } catch (e) {
+        console.log('cannot play the sound file', e);
+      }
+      Alert.alert('Focus Complete!', `Focus session completed for "${focusTask.title}". Take a 5-minute break!`);
+      setFocusTask(null);
+      setIsFocusRunning(false);
+    }
+    return () => {
+      if (interval) {clearInterval(interval);}
+    };
+  }, [focusTask, isFocusRunning, focusSeconds]);
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const startFocus = (task: Task) => {
+    setSelectedTaskForCustomFocus(task);
+    setCustomMins('25');
+    setCustomFocusModalVisible(true);
+  };
+
+  const initiateFocus = (task: Task, minutes: number) => {
+    setFocusTask(task);
+    setFocusSeconds(minutes * 60);
+    setIsFocusRunning(true);
+  };
 
   useEffect(() => {
     if (!user) {return;}
@@ -234,6 +297,39 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Focus Timer Bar */}
+      {focusTask && (
+        <View style={styles.focusBar}>
+          <View style={styles.focusInfo}>
+            <View style={styles.focusDot} />
+            <Text style={styles.focusLabel} numberOfLines={1}>
+              Focusing: {focusTask.title}
+            </Text>
+          </View>
+          <View style={styles.focusControls}>
+            <Text style={styles.focusTimer}>{formatTime(focusSeconds)}</Text>
+            <TouchableOpacity
+              onPress={() => setIsFocusRunning(!isFocusRunning)}
+              style={styles.focusControlBtn}>
+              <Text style={styles.focusControlText}>{isFocusRunning ? 'Pause' : 'Resume'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert('Stop Focus', 'Stop session and reset timer?', [
+                  {text: 'Cancel', style: 'cancel'},
+                  {text: 'Stop', style: 'destructive', onPress: () => {
+                    setFocusTask(null);
+                    setIsFocusRunning(false);
+                  }},
+                ]);
+              }}
+              style={[styles.focusControlBtn, styles.focusControlStop]}>
+              <Text style={styles.focusControlStopText}>Stop</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       {/* Stats */}
       <View style={styles.statsRow}>
         <Text style={styles.statsTitle}>My Tasks</Text>
@@ -268,6 +364,7 @@ export default function DashboardScreen() {
             onToggle={() => toggleTask(item.id, !item.completed)}
             onDelete={() => deleteTask(item.id)}
             onToggleSubTask={idx => handleToggleSubTask(item, idx)}
+            onStartFocus={() => startFocus(item)}
           />
         )}
       />
@@ -310,6 +407,68 @@ export default function DashboardScreen() {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Custom Focus Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={customFocusModalVisible}
+        onRequestClose={() => setCustomFocusModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Start Focus Session</Text>
+            <Text style={styles.modalSub}>Choose a preset or enter any minutes below:</Text>
+            
+            <View style={styles.presetsRow}>
+              <TouchableOpacity onPress={() => setCustomMins('15')} style={styles.presetBtn}>
+                <Text style={styles.presetBtnText}>15m</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setCustomMins('25')} style={styles.presetBtn}>
+                <Text style={styles.presetBtnText}>25m</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setCustomMins('45')} style={styles.presetBtn}>
+                <Text style={styles.presetBtnText}>45m</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setCustomMins('60')} style={styles.presetBtn}>
+                <Text style={styles.presetBtnText}>60m</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.modalInput}
+              keyboardType="numeric"
+              placeholder="Minutes (e.g. 25)"
+              placeholderTextColor="#64748b"
+              value={customMins}
+              onChangeText={setCustomMins}
+              autoFocus
+            />
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => setCustomFocusModalVisible(false)}
+                style={styles.modalBtnCancel}>
+                <Text style={styles.modalBtnCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  const mins = parseInt(customMins, 10);
+                  if (isNaN(mins) || mins <= 0) {
+                    return Alert.alert('Invalid Time', 'Please enter a valid positive number of minutes.');
+                  }
+                  if (selectedTaskForCustomFocus) {
+                    initiateFocus(selectedTaskForCustomFocus, mins);
+                  }
+                  setCustomFocusModalVisible(false);
+                }}
+                style={styles.modalBtnStart}>
+                <Text style={styles.modalBtnStartText}>Start</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -317,6 +476,98 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   container: {flex: 1, backgroundColor: '#0f0e2a'},
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 320,
+    backgroundColor: '#151433',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+  },
+  presetsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    gap: 8,
+    marginBottom: 20,
+  },
+  presetBtn: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  presetBtnText: {
+    color: '#a5b4fc',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  modalSub: {
+    fontSize: 13,
+    color: '#94a3b8',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  modalInput: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 20,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    width: '100%',
+    gap: 12,
+  },
+  modalBtnCancel: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    alignItems: 'center',
+  },
+  modalBtnCancelText: {
+    color: '#94a3b8',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  modalBtnStart: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: '#6366f1',
+    alignItems: 'center',
+  },
+  modalBtnStartText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
   navbar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -334,6 +585,80 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   navTitle: {fontSize: 18, fontWeight: '700', color: '#fff'},
+  focusBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(99, 102, 241, 0.3)',
+    marginRight: 6,
+  },
+  focusBtnText: {
+    color: '#818cf8',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  focusBar: {
+    backgroundColor: 'rgba(15, 14, 42, 0.95)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(99, 102, 241, 0.3)',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  focusInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+  },
+  focusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ef4444',
+    marginRight: 8,
+  },
+  focusLabel: {
+    color: '#a5b4fc',
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
+  },
+  focusControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  focusTimer: {
+    color: '#fff',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    fontSize: 16,
+    fontWeight: '700',
+    marginRight: 4,
+  },
+  focusControlBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  focusControlText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  focusControlStop: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+  },
+  focusControlStopText: {
+    color: '#f87171',
+    fontSize: 11,
+    fontWeight: '600',
+  },
   logoutBtn: {paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.07)'},
   logoutText: {color: '#94a3b8', fontSize: 13},
   statsRow: {flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8},
