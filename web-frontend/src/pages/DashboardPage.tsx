@@ -13,6 +13,17 @@ import {
 } from "../services/tasks";
 import { breakdownTask, type SubTask } from "../services/gemini";
 
+const isUrgentTask = (title: string): boolean => {
+  const urgentKeywords = [
+    "urgent", "asap", "tomorrow", "today", "immediately", 
+    "must", "important", "now", "critical", "flight", 
+    "emergency", "deadline", "fast", "priority", "maldives",
+    "ikman", "ikmanin", "heta", "ada", "avashyayi"
+  ];
+  const lowerTitle = title.toLowerCase();
+  return urgentKeywords.some(keyword => lowerTitle.includes(keyword));
+};
+
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -302,6 +313,8 @@ export default function DashboardPage() {
                   className={`backdrop-blur-xl border rounded-2xl overflow-hidden transition-all duration-300 ${
                     task.completed
                       ? "bg-white/3 border-white/5 opacity-60"
+                      : isUrgentTask(task.title)
+                      ? "bg-red-500/5 border-red-500/30 hover:border-red-500/50 shadow-lg shadow-red-950/10"
                       : "bg-white/5 border-white/10 hover:border-white/20"
                   }`}
                 >
@@ -326,6 +339,13 @@ export default function DashboardPage() {
                     >
                       {task.title}
                     </span>
+
+                    {/* Urgent badge */}
+                    {isUrgentTask(task.title) && !task.completed && (
+                      <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1 shrink-0 animate-pulse">
+                        ⚠️ Urgent
+                      </span>
+                    )}
 
                     {/* Sub-task badge */}
                     {hasSubTasks && (

@@ -24,6 +24,17 @@ import {breakdownTask, type SubTask} from '../services/gemini';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import SoundPlayer from 'react-native-sound-player';
 
+const isUrgentTask = (title: string): boolean => {
+  const urgentKeywords = [
+    "urgent", "asap", "tomorrow", "today", "immediately", 
+    "must", "important", "now", "critical", "flight", 
+    "emergency", "deadline", "fast", "priority", "maldives",
+    "ikman", "ikmanin", "heta", "ada", "avashyayi"
+  ];
+  const lowerTitle = title.toLowerCase();
+  return urgentKeywords.some(keyword => lowerTitle.includes(keyword));
+};
+
 function SwipeableTaskCard({
   task,
   onToggle,
@@ -113,7 +124,11 @@ function SwipeableTaskCard({
       </Animated.View>
 
       <Animated.View
-        style={[styles.card, task.completed && styles.cardDone, {transform: [{translateX}]}]}
+        style={[
+          styles.card,
+          task.completed ? styles.cardDone : (isUrgentTask(task.title) ? styles.cardUrgent : null),
+          {transform: [{translateX}]}
+        ]}
         {...panResponder.panHandlers}>
         <View style={styles.cardRow}>
           <TouchableOpacity onPress={onToggle} style={styles.checkBtn}>
@@ -127,6 +142,12 @@ function SwipeableTaskCard({
             numberOfLines={2}>
             {task.title}
           </Text>
+
+          {isUrgentTask(task.title) && !task.completed && (
+            <View style={styles.urgentBadge}>
+              <Text style={styles.urgentBadgeText}>⚠️ Urgent</Text>
+            </View>
+          )}
 
           {!task.completed && (
             <TouchableOpacity onPress={onStartFocus} style={styles.focusBtn}>
@@ -706,6 +727,25 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   cardDone: {opacity: 0.6},
+  cardUrgent: {
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderWidth: 1.5,
+  },
+  urgentBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    marginRight: 6,
+  },
+  urgentBadgeText: {
+    color: '#f87171',
+    fontSize: 10,
+    fontWeight: '700',
+  },
   cardRow: {flexDirection: 'row', alignItems: 'center', padding: 14, gap: 10},
   checkBtn: {padding: 4},
   checkIcon: {fontSize: 20, color: '#475569'},
