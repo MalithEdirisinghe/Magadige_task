@@ -20,6 +20,7 @@ import {useAuth} from '../contexts/AuthContext';
 import LogoImage from '../assets/logo.png';
 import {subscribeToTasks, addTask, toggleTask, deleteTask, updateSubTasks, type Task} from '../services/tasks';
 import {breakdownTask, type SubTask} from '../services/gemini';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 function SwipeableTaskCard({
   task,
@@ -44,10 +45,34 @@ function SwipeableTaskCard({
       if (g.dx < -100) {
         // Swipe left → delete
         Animated.timing(translateX, {toValue: -400, duration: 200, useNativeDriver: true}).start(() => {
-          onDelete();
+          Alert.alert(
+            'Delete Task',
+            'Are you sure you want to delete this task?',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+                onPress: () => {
+                  Animated.spring(translateX, {toValue: 0, useNativeDriver: true}).start();
+                },
+              },
+              {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: () => {
+                  onDelete();
+                },
+              },
+            ],
+            {cancelable: false}
+          );
         });
       } else if (g.dx > 100) {
         // Swipe right → complete
+        ReactNativeHapticFeedback.trigger('impactLight', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false,
+        });
         onToggle();
         Animated.spring(translateX, {toValue: 0, useNativeDriver: true}).start();
       } else {
@@ -165,6 +190,10 @@ export default function DashboardScreen() {
     if (!newTitle.trim() || !user) {
       return Alert.alert('Tip', 'Enter a task description first to use AI Magic ✦');
     }
+    ReactNativeHapticFeedback.trigger('impactLight', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
     setAiLoading(true);
     try {
       const subTasks = await breakdownTask(newTitle.trim());

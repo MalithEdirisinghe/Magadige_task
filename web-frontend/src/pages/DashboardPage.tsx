@@ -245,7 +245,11 @@ export default function DashboardPage() {
 
                     <button
                       id={`delete-task-${task.id}`}
-                      onClick={() => deleteTask(task.id)}
+                      onClick={() => {
+                        if (window.confirm("Are you sure you want to delete this task?")) {
+                          deleteTask(task.id);
+                        }
+                      }}
                       className="shrink-0 text-slate-600 hover:text-red-400 transition"
                     >
                       <Trash2 className="w-4 h-4" />
